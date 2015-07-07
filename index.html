@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Trabalho de Processamento Distribuido</title>
+        <link rel="stylesheet" href="estilos.css">
+        <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+        <script src="jquery.path.js"></script>
+    </head>
+    <script type="application/javascript">
+
+        function Node(marca, value, msg) {
+            this.marca = marca;
+            this.value = value;
+            this.msg = msg;
+            this.leader = 0;//marca se eh o lider
+        }    
+
+        var a = new Node("A", 12, "");
+        var b = new Node("B", 13, "");
+        var c = new Node("C", 15, "");
+        var d = new Node("D", 10, "");
+
+        var vetor = new Array(a, b, c, d);
+        var relatorio = [];   
+
+        function printVector(){    
+            var newHTML = [];    
+            newHTML.push('<table class="pure-table pure-table-bordered"><thead><tr><th>Node</th><th>Valor</th><th>Mensagem Recebida</th></tr></thead><tbody>');
+            for (var i = 0; i < vetor.length; i++) {
+                newHTML.push('<tr><td>' + vetor[i].marca + '</td><td>' + vetor[i].value + '</td><td>' + vetor[i].msg + '</td></tr>');
+            }    
+            newHTML.push('</tbody></table>');
+
+            return newHTML.join("");
+        }
+
+        function processB(){    
+            if(vetor[1].msg != ""){
+                
+                $(".two .overlay").addClass("color-blue");                   
+                $('.circle-msg').animate({
+                    path : new $.path.arc({
+                        center	: [90,87],
+                        radius	: 100,
+                        start	: -180,
+                        end     : 100,
+                        dir	: -1
+                    }),				
+                },1500);                 
+                str = vetor[1].marca + ": Elemento " + vetor[1].marca + " recebeu mensagem de " +  vetor[0].marca +".";
+                $(".relatorio").append(str + "<br>");
+                $(".status").html(str);
+
+                if(vetor[1].value == vetor[1].msg){//sou o lider
+                    str = vetor[1].marca + ": Elemento " + vetor[1].marca + " é o Lider!";
+                    $(".relatorio").append(str + "<br>");
+                    $(".status").html(str);            
+                    $(".two .overlay").addClass("color-leader"); 
+                    vetor[2].msg = vetor[1].msg;
+                    vetor[1].leader = 1;
+                } else if (vetor[1].value >= vetor[1].msg){//repasso meu id para o proximo
+                    str = vetor[1].marca + ": Elemento " + vetor[1].marca + " tem o ID " + vetor[1].value + " maior. Repassando meu ID para o Elemento " +  vetor[2].marca +".";
+                    $(".relatorio").append(str + "<br>");
+                    $(".status").html(str);                   
+                    vetor[2].msg = vetor[1].value;
+                    vetor[1].leader = 0;
+                } else { //repasso o id que recebi
+                    str = vetor[1].marca + ": Elemento " + vetor[0].marca +" tem messagem " + vetor[1].msg +" maior. Repassando mensagem para o Elemento " +  vetor[2].marca+".";
+                    $(".relatorio").append(str + "<br>");
+                    $(".status").html(str);                               
+                    vetor[2].msg = vetor[1].msg;//repassa a mensagem recebida
+                    vetor[1].leader = 0;
+                }
+
+                vetor[1].msg = "";                    
+
+                //remove cor e atualiza a tabela
+                window.setTimeout( function(){ 
+                    if(vetor[1].leader == 0)
+                        $(".two .overlay").removeClass("color-blue"); 
+                    $(".tabela").html(printVector());
+                }, 2000);                  
+            } 
+        }
+
+        function processC(){    
+            if(vetor[2].msg != ""){   
+                $(".three .overlay").addClass("color-blue");     
+                $('.circle-msg').animate({
+                    path : new $.path.arc({
+                        center	: [90,87],
+                        radius	: 100,
+                        start	: 100,
+                        end     : 10,
+                        dir	: -1
+                    }),				
+                },1500); 
+                
+                str = vetor[2].marca + ": Elemento " + vetor[2].marca + " recebeu mensagem de " +  vetor[1].marca + "."; 
+                $(".relatorio").append(str + "<br>");
+                $(".status").html(str);        
+      
+                if(vetor[2].value == vetor[2].msg){//sou o lider
+                    str = vetor[2].marca + ": Elemento " + vetor[2].marca + " é o Lider!";
+                    $(".relatorio").append(str + "<br>");
+                    $(".status").html(str);
+                    $(".three .overlay").addClass("color-leader");  
+                    vetor[3].msg = vetor[2].msg;
+                    vetor[2].leader = 1;
+                } else if (vetor[2].value >= vetor[2].msg){//repasso meu id para o proximo
+                    str = vetor[2].marca + ": Elemento " + vetor[2].marca + " tem o ID " + vetor[2].value + " maior. Repassando meu ID para o Elemento " +  vetor[3].marca + ".";
+                    $(".relatorio").append(str + "<br>");
+                    $(".status").html(str);                
+                    vetor[3].msg = vetor[2].value;
+                    vetor[2].leader = 0;
+                } else { //repasso o id que recebi
+                    str = vetor[2].marca + ": Elemento " + vetor[1].marca +" tem messagem " + vetor[2].msg + " maior. Repassando mensagem para o Elemento " +  vetor[3].marca + ".";
+                    $(".relatorio").append(str + "<br>");
+                    $(".status").html(str);              
+                    vetor[3].msg = vetor[2].msg;//repassa a mensagem recebida
+                    vetor[2].leader = 0;
+                }
+
+                vetor[2].msg = "";                    
+
+                //remove cor e atualiza a tabela
+                window.setTimeout( function(){ 
+                    if(vetor[2].leader == 0)
+                        $(".three .overlay").removeClass("color-blue"); 
+                    $(".tabela").html(printVector());
+                }, 2000);                  
+            } 
+        }    
+
+
+        function processD(){    
+            if(vetor[3].msg != ""){     
+                $(".four .overlay").addClass("color-blue");  
+                $('.circle-msg').animate({
+                    path : new $.path.arc({
+                        center	: [90,87],
+                        radius	: 100,
+                        start	: 10,
+                        end     : -100,
+                        dir	: -1
+                    }),				
+                },1500); 
+                                
+                str = vetor[3].marca + ": Elemento " + vetor[3].marca + " recebeu mensagem de " +  vetor[2].marca + ".";    
+                $(".relatorio").append(str + "<br>");
+                $(".status").html(str);                   
+
+                if(vetor[3].value == vetor[3].msg){//sou o lider
+                    str = vetor[3].marca + ": Elemento " + vetor[3].marca + " é o Lider!";
+                    $(".relatorio").append(str + "<br>");
+                    $(".status").html(str);               
+                    $(".four .overlay").addClass("color-leader");  
+                    vetor[0].msg = vetor[3].msg;
+                    vetor[3].leader = 1;
+                } else if (vetor[3].value >= vetor[3].msg){//repasso meu id para o proximo
+                    str = vetor[3].marca + ": Elemento " + vetor[3].marca + " tem o ID " + vetor[3].value + " maior. Repassando meu ID para o Elemento " +  vetor[0].marca + ".";
+                    $(".relatorio").append(str + "<br>");
+                    $(".status").html(str);              
+                    vetor[0].msg = vetor[3].value;
+                    vetor[3].leader = 0;
+                } else { //repasso o id que recebi
+                    str = vetor[3].marca + ": Elemento " + vetor[2].marca +" tem messagem  " + vetor[3].msg +" maior. Repassando mensagem para o Elemento " +  vetor[0].marca + ".";
+                    $(".relatorio").append(str + "<br>");
+                    $(".status").html(str);             
+                    vetor[0].msg = vetor[3].msg;//repassa a mensagem recebida
+                    vetor[3].leader = 0;
+                }
+
+                vetor[3].msg = "";                    
+
+                //remove cor e atualiza a tabela
+                window.setTimeout( function(){ 
+                    if(vetor[3].leader == 0)
+                        $(".four .overlay").removeClass("color-blue"); 
+                    $(".tabela").html(printVector());
+                }, 2000);                  
+            } 
+        }
+
+        function processA(){    
+            if(vetor[0].msg != ""){   
+                $(".one .overlay").addClass("color-blue"); 
+                $('.circle-msg').animate({
+                    path : new $.path.arc({
+                        center	: [90,87],
+                        radius	: 100,
+                        start	: -100,
+                        end     : -180,
+                        dir	: -1
+                    }),				
+                },1500); 
+                           
+                str = vetor[0].marca + ": Elemento " + vetor[0].marca + " recebeu mensagem de " +  vetor[3].marca + ".";    
+                $(".relatorio").append(str + "<br>");
+                $(".status").html(str); 
+
+                //adiciona cor ao elemento 
+                $(".first .overlay").addClass("color-blue");           
+                if(vetor[0].value == vetor[0].msg){//sou o lider
+                    str = vetor[0].marca + ": Elemento " + vetor[0].marca + " é o Lider!";
+                    $(".relatorio").append(str + "<br>");
+                    $(".status").html(str);   
+
+                    $(".first .overlay").addClass("color-leader");  
+                    vetor[0].leader = 1;
+                    vetor[1].msg = vetor[0].msg;
+                } else if (vetor[0].value >= vetor[0].msg){//repasso meu id para o proximo
+                    str = vetor[0].marca + ": Elemento " + vetor[0].marca + " tem o ID " + vetor[0].value + " maior. Repassando meu ID para o Elemento " +  vetor[1].marca + ".";
+                    $(".relatorio").append(str + "<br>");
+                    $(".status").html(str);               
+                    vetor[1].msg = vetor[0].value;
+                    vetor[0].leader = 0;
+                } else { //repasso o id que recebi
+                    str = vetor[0].marca + ": Elemento " + vetor[3].marca + " tem messagem " + vetor[0].msg + " maior. Repassando mensagem para o Elemento  " +  vetor[1].marca;
+                    $(".relatorio").append(str + "<br>");
+                    $(".status").html(str);               
+                    vetor[1].msg = vetor[0].msg;//repassa a mensagem recebida
+                    vetor[0].leader = 0;
+                }
+
+                vetor[0].msg = "";                    
+
+                //remove cor e atualiza a tabela
+                window.setTimeout( function(){ 
+                    if(vetor[0].leader == 0)
+                        $(".one .overlay").removeClass("color-blue"); 
+                    $(".tabela").html(printVector());
+                }, 2000);                  
+            } 
+        }    
+        setInterval(processB, 5900);    
+        setInterval(processC, 6400);    
+        setInterval(processD, 8000);   
+        setInterval(processA, 4900);   
+
+
+        $(document).ready(function() {  
+
+            $(".tabela").html(printVector());
+            $(".circle-msg ").hide();                                       
+
+            $(".one .overlay").html( vetor[0].marca + ": " +  vetor[0].value);
+            $(".two .overlay").html( vetor[1].marca + ": " +  vetor[1].value);
+            $(".three .overlay").html( vetor[2].marca + ": " +  vetor[2].value);
+            $(".four .overlay").html( vetor[3].marca + ": " +  vetor[3].value);
+
+            $("#start-a").click(function(){
+                $(".circle-msg").addClass(".one-msg");            
+                $(".status").html("Iniciando...");            
+                $(".msg-a").addClass("circle mensage-a");
+                vetor[1].msg = vetor[0].value;
+                $(".tabela").html(printVector()); 
+                str = vetor[0].marca + ": Elemento " + vetor[0].marca + " envia mensagem para " +  vetor[1].marca + ".";
+                $(".relatorio").append(str + "<br>");
+                $(".status").html(str);    
+
+                $(".circle-msg ").show();                                                  
+                $('.circle-msg').animate({
+                    path : new $.path.arc({
+                        center	: [90,87],
+                        radius	: 100,
+                        start	: -100,
+                        end     : -180,
+                        dir	: -1
+                    }),				
+                },1500);                  
+            });            
+
+            $("#start-b").click(function(){
+                $(".circle-msg").addClass("two");            
+                $(".status").html("Iniciando...");
+                $(".msg-b").addClass("circle mensage-b");
+                vetor[2].msg = vetor[1].value;
+                $(".tabela").html(printVector()); 
+                str = vetor[1].marca + ": Elemento " + vetor[1].marca + " envia mensagem para " +  vetor[2].marca + ".";
+                $(".relatorio").append(str + "<br>");
+                $(".status").html(str); 
+
+                $(".circle-msg ").show();                        
+                $('.circle-msg').animate({
+                    path : new $.path.arc({
+                        center	: [90,87],
+                        radius	: 100,
+                        start	: -180,
+                        end     : 100,
+                        dir	: -1
+                    }),				
+                },1500); 
+
+            }); 
+
+            $("#start-c").click(function(){
+                $(".circle-msg").addClass("three");            
+                $(".status").html("Iniciando...");
+                $(".msg-c").addClass("circle mensage-c");
+                vetor[3].msg = vetor[2].value;
+                $(".tabela").html(printVector()); 
+                str = vetor[2].marca + ": Elemento " + vetor[2].marca + " envia mensagem para " +  vetor[3].marca + ".";
+                $(".relatorio").append(str + "<br>");
+                $(".status").html(str);  
+
+                $(".circle-msg ").show();                        
+                $('.circle-msg').animate({
+                    path : new $.path.arc({
+                        center	: [90,87],
+                        radius	: 100,
+                        start	: 100,
+                        end     : 10,
+                        dir	: -1
+                    }),				
+                },1500); 
+
+            }); 
+
+            $("#start-d").click(function(){
+                $(".circle-msg").addClass("four");            
+                $(".status").html("Iniciando...");
+                $(".msg-d").addClass("circle mensage-d");
+                vetor[0].msg = vetor[3].value;
+                $(".tabela").html(printVector()); 
+                str = vetor[3].marca + ": Elemento " + vetor[3].marca + " envia mensagem para " +  vetor[0].marca + ".";
+                $(".relatorio").append(str + "<br>");
+                $(".status").html(str); 
+
+                $(".circle-msg ").show();                        
+                $('.circle-msg').animate({
+                    path : new $.path.arc({
+                        center	: [90,87],
+                        radius	: 100,
+                        start	: 10,
+                        end     : -100,
+                        dir	: -1
+                    }),				
+                },1500);                                                
+            });
+
+        });
+    </script>
+    <body>
+
+        <div class="grid">
+            <div class="unit whole">
+                Trabalho Processamento Distribuído - 2015/01
+                <br>Dupla: Caio Thomás e Rodrigo Moreira
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="unit half">
+
+                <div class="unit whole">
+                    <b>Status:</b><br><div class="status"></div>        
+                </div>
+
+                <div class="unit whole">
+                    <div class="tabela"></div>  
+                </div>
+
+                <div class="unit whole">
+                    <b>Relatório:</b><br>
+                    <div class="relatorio"></div>         
+                </div>                                                                                                            
+            </div>
+
+            <div class="unit half">
+                <div class="unit whole">
+
+                    <div id="big-circle" class="circle big">
+                        <div class="circle-msg"></div>
+                        <!--
+<div class="msg-a"></div>
+<div class="msg-b"></div>
+<div class="msg-c"></div>
+<div class="msg-d"></div>-->
+
+                        <div class="spinner one" id="start-a">
+                            <!-- <div class="spinner-inner"></div>
+<div class="spinner-mask time-ani-a"></div>
+<div class="spinner-mask-two time-ani-a"></div>-->
+                            <div class="overlay link"></div>
+                        </div>
+
+                        <div class="spinner two" id="start-b">
+                            <!--<div class="spinner-inner time-ani-b"></div>
+<div class="spinner-mask time-ani-b"></div>
+<div class="spinner-mask-two time-ani-b"></div>-->
+                            <div class="overlay link"></div>
+                        </div>     
+
+                        <div class="spinner three" id="start-c">
+                            <!--<div class="spinner-inner time-ani-c"></div>
+<div class="spinner-mask time-ani-c"></div>
+<div class="spinner-mask-two time-ani-c"></div>-->
+                            <div class="overlay link"></div>
+                        </div>    
+
+                        <div class="spinner four" id="start-d">
+                            <!--<div class="spinner-inner time-ani-d"></div>
+<div class="spinner-mask time-ani-d"></div>
+<div class="spinner-mask-two time-ani-d"></div>-->
+                            <div class="overlay link"></div>
+                        </div>    
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+
+
+    </body>
+</html>
